@@ -4,70 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
 
 	"time"
-	"unicode"
 
 	"github.com/pkg/term"
-
-	"github.com/faiface/beep/mp3"
 
 	"github.com/faiface/beep/speaker"
 
 	"github.com/faiface/beep"
 )
-
-func ReadSound(filename string) (beep.StreamSeekCloser, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	streamer, _, err := mp3.Decode(f)
-	if err != nil {
-		return nil, err
-	}
-	return streamer, nil
-}
-
-type Sounds map[rune]beep.StreamSeekCloser
-
-func (s Sounds) Clear() {
-	for _, v := range s {
-		v.Close()
-	}
-}
-
-func (s Sounds) Close() {
-	s.Clear()
-}
-
-func ReadSounds() (Sounds, error) {
-	sounds := Sounds(make(map[rune]beep.StreamSeekCloser))
-	for c := 'a'; c <= 'z'; c++ {
-		streamer, err := ReadSound(fmt.Sprintf("sounds/%s.mp3", string(unicode.ToUpper(c))))
-		if err != nil {
-			sounds.Clear()
-			return nil, err
-		}
-		sounds[c] = streamer
-	}
-	return sounds, nil
-}
-
-func (s Sounds) Play(c rune) bool {
-	streamer := s[c]
-	if streamer == nil {
-		return false
-	}
-	streamer.Seek(0)
-	done := make(chan struct{})
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-		close(done)
-	})))
-	<-done
-	return true
-}
 
 func PlayAndWait(s Sounds, t *term.Term, c rune) {
 	var retry int
