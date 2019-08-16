@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 	"unicode"
@@ -66,17 +68,24 @@ func PlayAndWait(s Sounds, t *term.Term, c rune) {
 	if c < 'A' || 'Z' < c {
 		return
 	}
+	var retry int
 	var buf [1]byte
 	for c != unicode.ToUpper(rune(buf[0])) {
+		if retry > 2 {
+			fmt.Printf("%q\n", c)
+			retry = 0
+		}
 		s.Play(c)
 		_, err := t.Read(buf[:])
 		if err != nil {
 			log.Fatal(err)
 		}
+		retry++
 	}
 }
 
 func main() {
+	rand.Seed(42)
 	sampleRate := beep.SampleRate(44100)
 	speaker.Init(sampleRate, sampleRate.N(time.Second/10))
 	sounds, err := ReadSounds()
@@ -84,15 +93,14 @@ func main() {
 		log.Fatal(err)
 	}
 	defer sounds.Close()
-	text := "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
 	t, err := term.Open("/dev/tty")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer t.Restore()
 	t.SetCbreak()
-	for _, c := range text {
-		c = unicode.ToUpper(c)
+	for {
+		c := unicode.ToUpper(rune('A' + rand.Intn(26)))
 		PlayAndWait(sounds, t, c)
 	}
 }
