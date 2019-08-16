@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"math/rand"
@@ -71,8 +72,8 @@ func (s Sounds) Play(c rune) bool {
 
 func PlayAndWait(s Sounds, t *term.Term, c rune) {
 	var retry int
-	var buf [1]byte
-	for c != rune(buf[0]) {
+	var buf [4]byte
+	for c != bytes.Runes(buf[:])[0] {
 		if retry > 1 {
 			fmt.Printf("%q\n", c)
 			retry = 0
