@@ -54,28 +54,31 @@ func ReadSounds() (Sounds, error) {
 	return sounds, nil
 }
 
-func (s Sounds) Play(c rune) {
-	done := make(chan struct{})
+func (s Sounds) Play(c rune) bool {
 	streamer := s[c]
+	if streamer == nil {
+		return false
+	}
 	streamer.Seek(0)
+	done := make(chan struct{})
 	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
 		close(done)
 	})))
 	<-done
+	return true
 }
 
 func PlayAndWait(s Sounds, t *term.Term, c rune) {
-	if c < 'A' || 'Z' < c {
-		return
-	}
 	var retry int
 	var buf [1]byte
 	for c != unicode.ToUpper(rune(buf[0])) {
-		if retry > 2 {
+		if retry > 1 {
 			fmt.Printf("%q\n", c)
 			retry = 0
 		}
-		s.Play(c)
+		if !s.Play(c) {
+			return
+		}
 		_, err := t.Read(buf[:])
 		if err != nil {
 			log.Fatal(err)
@@ -99,8 +102,12 @@ func main() {
 	}
 	defer t.Restore()
 	t.SetCbreak()
+	var prev rune
 	for {
 		c := unicode.ToUpper(rune('A' + rand.Intn(26)))
-		PlayAndWait(sounds, t, c)
+		if prev != c {
+			PlayAndWait(sounds, t, c)
+			prev = c
+		}
 	}
 }
