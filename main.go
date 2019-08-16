@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 
 	"time"
@@ -96,7 +95,6 @@ func init() {
 }
 
 func main() {
-	rand.Seed(42)
 	sounds, err := ReadSounds()
 	if err != nil {
 		log.Fatal(err)
@@ -112,15 +110,4 @@ func main() {
 	for {
 		PlayAndWait(sounds, t, g.Next())
 	}
-}
-
-type LettersGenerator rune
-
-func (g *LettersGenerator) Next() rune {
-	c := rune('a' + rand.Intn(26))
-	for c == rune(*g) {
-		c = rune('a' + rand.Intn(26))
-	}
-	*g = LettersGenerator(c)
-	return c
 }
