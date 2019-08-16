@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"os"
 
-	// "sync/atomic"
 	"time"
 	"unicode"
 
@@ -126,43 +125,3 @@ func (g *LettersGenerator) Next() rune {
 	g.prev = c
 	return c
 }
-
-// func main() {
-// 	rand.Seed(42)
-// 	sounds, err := ReadSounds()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer sounds.Close()
-// 	var letter rune
-// 	g := &LettersGenerator{}
-// 	go func() {
-// 		for {
-// 			c := g.Next()
-// 			sounds.Play(c)
-// 			for c != atomic.LoadInt32(&letter) {
-// 				time.Sleep(time.Duration(250) * time.Millisecond)
-// 				if c != atomic.LoadInt32(&letter) {
-// 					sounds.Play(c)
-// 				}
-// 			}
-// 		}
-// 	}()
-// 	go func() {
-// 		t, err := term.Open("/dev/tty")
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		defer t.Restore()
-// 		t.SetCbreak()
-// 		for {
-// 			var buf [1]byte
-// 			_, err := t.Read(buf[:])
-// 			if err != nil {
-// 				log.Fatal(err)
-// 			}
-// 			atomic.StoreInt32(&letter, rune(buf[0]))
-// 		}
-// 	}()
-// 	select {}
-// }
