@@ -107,21 +107,19 @@ func main() {
 	}
 	defer t.Restore()
 	t.SetCbreak()
-	g := &LettersGenerator{}
+	var g LettersGenerator
 	for {
 		PlayAndWait(sounds, t, g.Next())
 	}
 }
 
-type LettersGenerator struct {
-	prev rune
-}
+type LettersGenerator rune
 
 func (g *LettersGenerator) Next() rune {
 	c := rune('a' + rand.Intn(26))
-	for c == g.prev {
+	for c == rune(*g) {
 		c = rune('a' + rand.Intn(26))
 	}
-	g.prev = c
+	*g = LettersGenerator(c)
 	return c
 }
