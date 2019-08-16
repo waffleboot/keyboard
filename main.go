@@ -87,10 +87,14 @@ func PlayAndWait(s Sounds, t *term.Term, c rune) {
 	}
 }
 
-func main() {
+const sampleRate = beep.SampleRate(44100)
+
+func init() {
 	rand.Seed(42)
-	sampleRate := beep.SampleRate(44100)
 	speaker.Init(sampleRate, sampleRate.N(time.Second/10))
+}
+
+func main() {
 	sounds, err := ReadSounds()
 	if err != nil {
 		log.Fatal(err)
